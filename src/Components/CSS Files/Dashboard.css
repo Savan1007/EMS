@@ -1,0 +1,21 @@
+* {
+    box-sizing: border-box;
+}
+
+.events {
+    margin: 2%;
+    background-color: rgb(255, 255, 255);
+    border-radius: 12px;
+    height: 100%;
+    width: 95%;
+}
+
+.emplo {
+    background-color: beige;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+style {
+    width: 4000px;
+}
