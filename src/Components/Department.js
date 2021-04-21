@@ -17,14 +17,14 @@ const TableViewer = (props) => {
       <tr>
         {" "}
         <td>
-          <Link to={`view/profile/${element.empId}`}>{element.empId}</Link>
+          <Link to={`/profile/${element.empId}`}>{element.empId}</Link>
         </td>
         <td> {element.empName} </td> <td> {element.empDesign} </td>{" "}
         <td> {element.email} </td>{" "}
       </tr>
     );
   });
-  console.log(props);
+  // console.log(props);
   return (
     <div class='col-lg-10'>
       <table class='col-lg-8'>
@@ -95,7 +95,7 @@ function Department() {
   const AddnewMGR = async () => {
     setloading(true);
     const pass = Math.random().toString(36).substring(2, 12);
-    const { status, data } = await axios.post(
+    const { status } = await axios.post(
       "https://emplo-eye.herokuapp.com/new/employee",
       {
         empId: newEmpId,

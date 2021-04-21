@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  useHistory,
-} from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Layout from "./Components/Layout";
 import DashBoard from "./Components/Dashboard";
 import Login from "./Components/Login";
@@ -19,7 +14,7 @@ import Profile from "./Components/Profile";
 
 function App() {
   const auth = useSelector(isAuthenticated);
-
+  // const auth = true;
   if (!auth) {
     return <Login />;
   } else {
@@ -54,7 +49,7 @@ function App() {
             <Route path='/events' exact>
               {/* events Component */}
             </Route>
-            <Route path='/profile' exact>
+            <Route path='/profile/:id' exact>
               {/* events Component */}
               <Profile />
             </Route>

@@ -1,58 +1,100 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import { empId, role } from "../features/authSlice";
 
-const TableViewer = ({ data, filter }) => {
-  let filteredData = data.filter((element) => {
-    return (
-      element.empid.includes(filter) ||
-      element.LeaveCat.includes(filter) ||
-      element.empName.includes(filter) ||
-      element.leaveStatus.includes(filter)
-    );
-  });
-
-  const uiObj = filteredData.map((element) => {
+const LeavesList = ({ data, func }) => {
+  const obj = data.map((element) => {
     return (
       <tr>
-        <td scope='col'>
-          <Link to={`view/leave/${element.empid}`}>{element.empid}</Link>
+        {" "}
+        <td>{element.appliedBy}</td>
+        <td>
+          {" "}
+          <b>{element.startDate.slice(0, 10)} </b> to{" "}
+          <b>{element.endDate.slice(0, 10)} </b>
         </td>
-        <td scope='col'>
-          <Link to={`view/leave/${element.empid}`}>{element.empName}</Link>
+        <td> {element.reason.slice(0, 15)} </td>
+        <td>
+          <div className='d-flex align-items-center '>
+            <button
+              className='btn btn-outline-primary'
+              onClick={() => func(element.appliedBy, true)}
+            >
+              {" "}
+              Approve{" "}
+            </button>{" "}
+            &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            <button
+              className='btn btn-floating'
+              onClick={() => func(element.appliedBy, false)}
+            >
+              <i class='far fa-trash-alt text-danger'></i>
+            </button>
+          </div>
         </td>
-        <td scope='col'>{element.LeaveCat}</td>
-        <td scope='col'>{element.leaveStatus}</td>
       </tr>
     );
   });
   return (
-    <table>
-      <thread>
-        <tr>
-          <th scope='col'>Employee ID</th>
-          <th scope='col'>Employee Name</th>
-          <th scope='col'>Leave Category</th>
-          <th scope='col'>Status</th>
-        </tr>
+    <div class='col-lg-10'>
+      <table class='col-lg-8'>
+        <thead>
+          <tr>
+            <th scope='col'> Employee Id</th>
+            <th scope='col'> Dates</th>
+            <th scope='col'> Reason</th>
+            <th scope='col'> Actions</th>
+          </tr>
+        </thead>
         <br />
-        {uiObj}
-      </thread>
-    </table>
+        {obj}
+      </table>
+    </div>
   );
 };
 
 function Leave() {
   const currentRole = useSelector(role);
-  const [filter, setFilter] = useState("");
   const [sdate, setSdate] = useState("");
   const [edate, setEdate] = useState("");
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
   const [added, setAdded] = useState(false);
   const currentUser = useSelector(empId);
+  const [leaves, setLeaves] = useState([]);
+
+  //https://emplo-eye.herokuapp.com/update/leave
+  const ApproveLeave = async (id, type) => {
+    setLoading(true);
+    const { status } = await axios.post(
+      "https://emplo-eye.herokuapp.com/update/leave",
+      {
+        appliedBy: id,
+        status: type ? "Approved" : "Rejected",
+      }
+    );
+
+    if (status === 200) {
+      setLoading(false);
+      alert("Operation Performed Successfully");
+    }
+  };
+
+  const FetchLeaves = async () => {
+    const { status, data } = await axios.get(
+      "https://emplo-eye.herokuapp.com/leave"
+    );
+    if (status === 200) {
+      setLeaves(data);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    FetchLeaves();
+  }, []);
 
   const ApplyForLeave = async () => {
     // console.log();
@@ -74,28 +116,66 @@ function Leave() {
   };
 
   if (currentRole === "MGR") {
-    return (
-      <div className='container-fluid'>
-        <div className='col-lg-11 pt-5'>
-          <h3 className='text-primary '>Leave</h3>
-          <p className='bar pb-3'>Employees seeking Leave</p>
-        </div>
-        <input
-          type='search'
-          placeholder='filter'
-          className='form-control'
-          value={filter}
-          onChange={(e) => {
-            setFilter(e.target.value);
-          }}
-        />
-        <div className='row g-5 mt-1'>
-          <div className='col-lg-11'>
-            {/* <TableViewer data={DummyData} filter={filter} /> */}
+    if (loading) {
+      return (
+        <div class='d-flex justify-content-center'>
+          <div class='spinner-border' role='status'>
+            <span class='visually-hidden'>Loading...</span>
           </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      return (
+        <div className='container-fluid'>
+          <ul class='nav nav-tabs mb-3' id='ex1' role='tablist'>
+            <li class='nav-item' role='presentation'>
+              <a
+                class='nav-link active'
+                id='ex1-tab-1'
+                data-mdb-toggle='tab'
+                href='#ex1-tabs-1'
+                role='tab'
+                aria-controls='ex1-tabs-1'
+                aria-selected='true'
+              >
+                New Applications
+              </a>
+            </li>
+            <li class='nav-item' role='presentation'>
+              <a
+                class='nav-link'
+                id='ex1-tab-2'
+                data-mdb-toggle='tab'
+                href='#ex1-tabs-2'
+                role='tab'
+                aria-controls='ex1-tabs-2'
+                aria-selected='false'
+              >
+                Archives
+              </a>
+            </li>
+          </ul>
+          <div class='tab-content' id='ex1-content'>
+            <div
+              class='tab-pane fade show active'
+              id='ex1-tabs-1'
+              role='tabpanel'
+              aria-labelledby='ex1-tab-1'
+            >
+              <LeavesList data={leaves} func={ApproveLeave} />
+            </div>
+            <div
+              class='tab-pane fade'
+              id='ex1-tabs-2'
+              role='tabpanel'
+              aria-labelledby='ex1-tab-2'
+            >
+              Tab 2 content
+            </div>
+          </div>
+        </div>
+      );
+    }
   } else if (currentRole === "EMP") {
     return (
       <div className='container-fluid'>

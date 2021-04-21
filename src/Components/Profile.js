@@ -1,12 +1,15 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useParams } from "react-router";
 import { empId } from "../features/authSlice";
 
-function Profile() {
+function Profile(props) {
   const [userProfile, setUserProfile] = useState({});
   const [loading, setLoading] = useState(true);
   const currentUser = useSelector(empId);
+  const params = useParams();
+  console.log(params);
 
   //User update Hooks
   const [Name, setName] = useState("");
@@ -21,7 +24,7 @@ function Profile() {
   const FetchProfile = async () => {
     setLoading(true);
     const { status, data } = await axios.get(
-      `https://emplo-eye.herokuapp.com/profile/${currentUser}`
+      `https://emplo-eye.herokuapp.com/profile/${params.id}`
     );
     if (status === 200) {
       console.log(data);
@@ -91,19 +94,23 @@ function Profile() {
               <i className='fas fa-eye'> </i> View
             </a>
           </li>
-          <li class='nav-item' role='presentation'>
-            <a
-              class='nav-link'
-              id='ex1-tab-2'
-              data-mdb-toggle='tab'
-              href='#ex1-tabs-2'
-              role='tab'
-              aria-controls='ex1-tabs-2'
-              aria-selected='false'
-            >
-              <i className='fas fa-edit'> </i> &nbsp; Edit
-            </a>
-          </li>
+          {currentUser === params.id ? (
+            <li class='nav-item' role='presentation'>
+              <a
+                class='nav-link'
+                id='ex1-tab-2'
+                data-mdb-toggle='tab'
+                href='#ex1-tabs-2'
+                role='tab'
+                aria-controls='ex1-tabs-2'
+                aria-selected='false'
+              >
+                <i className='fas fa-edit'> </i> &nbsp; Edit
+              </a>
+            </li>
+          ) : (
+            <></>
+          )}
         </ul>
 
         <div class='tab-content pb-5' id='ex1-content'>

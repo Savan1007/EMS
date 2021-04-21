@@ -45,7 +45,7 @@ export default function Navbar() {
 
               <ul class='dropdown-menu' aria-labelledby='navbarDropdown'>
                 <li>
-                  <Link class='dropdown-item' to='/profile'>
+                  <Link class='dropdown-item' to={`profile/${userId}`}>
                     <i class='far fa-id-badge'></i> &nbsp; Profile
                   </Link>
                 </li>
