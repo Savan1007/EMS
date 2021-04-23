@@ -3,6 +3,21 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { empId, role } from "../features/authSlice";
 
+
+const ListOfArchives = ({data}) => {
+  const view = data.map((element) => {
+    return <div className="card p-2 mt-2">
+      <div class="card-body d-flex justify-content-between">
+        {element.startDate.slice(0 , 10)} to {element.endDate.slice(0 , 10)}
+       
+        <div>{element.reason}</div>
+        <button className={element.status.startsWith('A') ? 'btn btn-success' : 'btn btn-danger'} disabled>{element.status}</button>
+      </div>
+    </div>
+  })
+  return <>{view}</>;
+}
+
 const LeavesList = ({ data, func }) => {
   const obj = data.map((element) => {
     return (
@@ -63,6 +78,7 @@ function Leave() {
   const [added, setAdded] = useState(false);
   const currentUser = useSelector(empId);
   const [leaves, setLeaves] = useState([]);
+  const [empLeaves , setEmpLeaves] = useState([]);
 
   //https://emplo-eye.herokuapp.com/update/leave
   const ApproveLeave = async (id, type) => {
@@ -81,6 +97,13 @@ function Leave() {
     }
   };
 
+  const FetchPericularEmployeeLeaves = async() => {
+    const {status , data} = await axios.get(`https://emplo-eye.herokuapp.com/leave/${currentUser}`);
+    if(status === 200){
+      setEmpLeaves(data);
+    }
+  }
+
   const FetchLeaves = async () => {
     const { status, data } = await axios.get(
       "https://emplo-eye.herokuapp.com/leave"
@@ -94,6 +117,7 @@ function Leave() {
   useEffect(() => {
     setLoading(true);
     FetchLeaves();
+    FetchPericularEmployeeLeaves()
   }, []);
 
   const ApplyForLeave = async () => {
@@ -170,7 +194,7 @@ function Leave() {
               role='tabpanel'
               aria-labelledby='ex1-tab-2'
             >
-              Tab 2 content
+              <ListOfArchives data={leaves} />
             </div>
           </div>
         </div>
@@ -298,7 +322,9 @@ function Leave() {
             role='tabpanel'
             aria-labelledby='ex1-tab-2'
           >
-            No Leaves yet!
+            <div className="container-fluid p-3">
+              <ListOfArchives data={empLeaves} />
+            </div>
           </div>
         </div>
       </div>
